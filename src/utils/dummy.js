@@ -1,4 +1,3 @@
-// utils/dummy.js
 export const dummyData = [
     {
       id: '1',
