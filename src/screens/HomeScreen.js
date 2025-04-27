@@ -1,12 +1,30 @@
 import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
 import DataCard from '../components/DataCard';
 import { Ionicons } from '@expo/vector-icons';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { DataContext } from '../contexts/DataContext';
+import axios from 'axios';
 
 
 export default function HomeScreen({ navigation }) {
-  const { dataList } = useContext(DataContext);
+//   const { dataList } = useContext(DataContext);
+
+  const [dataList, setDataList] = useState([]);
+
+    // Fetch users from backend API
+    const fetchUsers = async () => {
+        try {
+          const response = await axios.get('http://192.168.18.62:8080/users');                    
+          setDataList(response.data);
+        } catch (error) {
+          console.error("Error Get Users" , error);
+        }
+      };
+    
+    useEffect(() => {
+        fetchUsers();
+     }, [])
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* HEADER STATIC */}
