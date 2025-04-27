@@ -51,7 +51,7 @@ export default function DetailScreen({ route, navigation }) {
         </Text>
       </View>
 
-      <View style={styles.buttonGroup}>
+      {/* <View style={styles.buttonGroup}>
         <TouchableOpacity style={styles.editButton} onPress={() => {}}>
           <Ionicons name="create-outline" size={20} color="#ffffff" />
           <Text style={styles.buttonText}>Edit Data</Text>
@@ -60,7 +60,7 @@ export default function DetailScreen({ route, navigation }) {
           <Ionicons name="trash-outline" size={20} color="#ffffff" />
           <Text style={styles.buttonText}>Hapus Data</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
