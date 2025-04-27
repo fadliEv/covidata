@@ -2,7 +2,7 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function DetailScreen({ route, navigation }) {
+export default function DetailScreen({ route }) {
   const { data } = route.params;
 
   const getStatusBadgeStyle = (status) => {
@@ -50,17 +50,6 @@ export default function DetailScreen({ route, navigation }) {
           Informasi ini digunakan untuk pemantauan dan upaya penanganan masyarakat yang terdampak COVID-19.
         </Text>
       </View>
-
-      {/* <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.editButton} onPress={() => {}}>
-          <Ionicons name="create-outline" size={20} color="#ffffff" />
-          <Text style={styles.buttonText}>Edit Data</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteButton} onPress={() => {}}>
-          <Ionicons name="trash-outline" size={20} color="#ffffff" />
-          <Text style={styles.buttonText}>Hapus Data</Text>
-        </TouchableOpacity>
-      </View> */}
     </View>
   );
 }

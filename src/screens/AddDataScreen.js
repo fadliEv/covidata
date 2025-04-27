@@ -1,13 +1,11 @@
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
-import { useContext, useState } from 'react';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
+import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { DataContext } from '../contexts/DataContext';
+import axios from 'axios';
 
 export default function AddDataScreen({ navigation }) {
-
-  const { addData } = useContext(DataContext);
 
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState(null);
@@ -24,30 +22,32 @@ export default function AddDataScreen({ navigation }) {
     { label: 'Sembuh', value: 'Sembuh' },
   ]);
 
-  const handleSubmit = () => {
+  // Handle form submission
+  const handleSubmit = async () => {
     if (!name || !birthDate || !status || !location) {
       setErrorMessage('Semua field wajib diisi!');
       return;
     }
 
     const newData = {
-      id: Date.now().toString(), 
       name,
       age: calculateAge(birthDate),
       status,
       location,
     };
 
-    addData(newData);
-    navigation.goBack();
+    try {
+      // Send data to backend via POST request
+      const response = await axios.post('http://192.168.18.62:8080/users', newData); // Update with your backend API URL
+      Alert.alert('Success', 'User created successfully');
+      navigation.goBack(); // Go back to previous screen after success
+    } catch (error) {
+      console.error('Error creating user:', error);
+      Alert.alert('Error', 'Failed to create user. Please try again.');
+    }
   };
 
-  const onChangeDate = (event, selectedDate) => {
-    const currentDate = selectedDate || birthDate;
-    setShowDatePicker(false);
-    setBirthDate(currentDate);
-  };
-
+  // Calculate age based on birthdate
   const calculateAge = (birthDate) => {
     const today = new Date();
     const birth = new Date(birthDate);
@@ -59,8 +59,15 @@ export default function AddDataScreen({ navigation }) {
     return age;
   };
 
+  // Handle date picker change
+  const onChangeDate = (event, selectedDate) => {
+    const currentDate = selectedDate || birthDate;
+    setShowDatePicker(false);
+    setBirthDate(currentDate);
+  };
+
   return (
-    <View style={styles.container}>      
+    <View style={styles.container}>
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       {/* Input Nama */}
@@ -97,20 +104,20 @@ export default function AddDataScreen({ navigation }) {
       {/* Dropdown Status */}
       <View style={{ marginBottom: open ? 160 : 20 }}>
         <DropDownPicker
-            open={open}
-            value={status}
-            items={items}
-            setOpen={setOpen}
-            setValue={setStatus}
-            setItems={setItems}
-            placeholder="Pilih Status"
-            style={styles.dropdownOnly}
-            dropDownContainerStyle={styles.dropdownContainer}
-            placeholderStyle={{ color: '#999' }}
-            textStyle={{ fontSize: 16 }}
-            onOpen={() => setErrorMessage('')}
+          open={open}
+          value={status}
+          items={items}
+          setOpen={setOpen}
+          setValue={setStatus}
+          setItems={setItems}
+          placeholder="Pilih Status"
+          style={styles.dropdownOnly}
+          dropDownContainerStyle={styles.dropdownContainer}
+          placeholderStyle={{ color: '#999' }}
+          textStyle={{ fontSize: 16 }}
+          onOpen={() => setErrorMessage('')}
         />
-        </View>
+      </View>
 
       {/* Input Lokasi */}
       <View style={styles.inputGroup}>
@@ -172,12 +179,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
-  dropdown: {
-    backgroundColor: '#fff',
+  dropdownOnly: {
+    backgroundColor: '#ffffff',
     borderColor: '#077A7D',
+    borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 12,
     height: 50,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
   },
   dropdownContainer: {
     backgroundColor: '#fff',
@@ -198,14 +207,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
   },
-  dropdownOnly: {
-    backgroundColor: '#ffffff',
-    borderColor: '#077A7D',
-    borderWidth: 1,
-    borderRadius: 10,
-    height: 50,
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-  },
-  
 });

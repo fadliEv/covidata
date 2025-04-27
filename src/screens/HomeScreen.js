@@ -7,17 +7,28 @@ import axios from 'axios';
 export default function HomeScreen({ navigation }) {
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true); // State untuk loading
-  
+  const [refreshing, setRefreshing] = useState(false); // State untuk refresh
+
+  // Fetch users from backend API
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://192.168.18.62:8080/users');                    
+      const response = await axios.get('http://192.168.18.62:8080/users'); // Ganti dengan IP lokal
       setDataList(response.data);
-      setLoading(false); 
+      setLoading(false);
+      setRefreshing(false); // Stop refreshing after fetch
     } catch (error) {
       console.error("Error Get Users", error);
       setLoading(false); // Jika error, hentikan loading
+      setRefreshing(false); // Stop refreshing even if error
     }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true); // Set refreshing true when pull down
+    setTimeout(() => {
+      fetchUsers(); // Delay fetching data for a better user experience
+    }, 700); // 500 ms delay before calling fetchUsers
   };
 
   useEffect(() => {
@@ -76,6 +87,8 @@ export default function HomeScreen({ navigation }) {
           style={styles.listArea}
           contentContainerStyle={{ paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing} // Show loading spinner when refreshing
+          onRefresh={handleRefresh} // Trigger fetch on pull to refresh
         />
       )}
     </SafeAreaView>
