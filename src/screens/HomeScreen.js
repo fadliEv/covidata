@@ -13,22 +13,22 @@ export default function HomeScreen({ navigation }) {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://192.168.18.62:8080/users'); // Ganti dengan IP lokal
+      const response = await axios.get('http://192.168.18.62:8080/users'); // ip device ya
       setDataList(response.data);
       setLoading(false);
       setRefreshing(false); // Stop refreshing after fetch
     } catch (error) {
       console.error("Error Get Users", error);
       setLoading(false); // Jika error, hentikan loading
-      setRefreshing(false); // Stop refreshing even if error
+      setRefreshing(false);
     }
   };
 
   const handleRefresh = () => {
-    setRefreshing(true); // Set refreshing true when pull down
+    setRefreshing(true); 
     setTimeout(() => {
-      fetchUsers(); // Delay fetching data for a better user experience
-    }, 700); // 500 ms delay before calling fetchUsers
+      fetchUsers(); 
+    }, 700); 
   };
 
   useEffect(() => {

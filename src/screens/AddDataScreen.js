@@ -12,8 +12,8 @@ export default function AddDataScreen({ navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [location, setLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [age, setAge] = useState(null); 
 
-  // Untuk Dropdown Picker
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(null);
   const [items, setItems] = useState([
@@ -31,14 +31,13 @@ export default function AddDataScreen({ navigation }) {
 
     const newData = {
       name,
-      age: calculateAge(birthDate),
+      age,
       status,
       location,
     };
 
     try {
-      // Send data to backend via POST request
-      const response = await axios.post('http://192.168.18.62:8080/users', newData); // Update with your backend API URL
+      const response = await axios.post('http://192.168.18.62:8080/users', newData);
       Alert.alert('Success', 'User created successfully');
       navigation.goBack(); // Go back to previous screen after success
     } catch (error) {
@@ -56,6 +55,7 @@ export default function AddDataScreen({ navigation }) {
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
+    setAge(age); // Update the age state
     return age;
   };
 
@@ -64,13 +64,13 @@ export default function AddDataScreen({ navigation }) {
     const currentDate = selectedDate || birthDate;
     setShowDatePicker(false);
     setBirthDate(currentDate);
+    calculateAge(currentDate); 
   };
 
   return (
     <View style={styles.container}>
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-
-      {/* Input Nama */}
+      
       <View style={styles.inputGroup}>
         <Ionicons name="person-outline" size={20} color="#34A0A4" style={styles.icon} />
         <TextInput
@@ -84,13 +84,22 @@ export default function AddDataScreen({ navigation }) {
         />
       </View>
 
-      {/* Input Tanggal Lahir */}
-      <TouchableOpacity style={styles.inputGroup} onPress={() => setShowDatePicker(true)}>
-        <Ionicons name="calendar-outline" size={20} color="#34A0A4" style={styles.icon} />
-        <Text style={[styles.input, { color: birthDate ? '#333' : '#999' }]}>
-          {birthDate ? birthDate.toLocaleDateString() : 'Tanggal Lahir'}
-        </Text>
-      </TouchableOpacity>
+      {/* Tanggal Lahir */}
+      <View style={styles.dateGroup}>
+        <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+          <Ionicons name="calendar-outline" size={20} color="#34A0A4" style={styles.icon} />
+          <Text style={[styles.input, { color: birthDate ? '#333' : '#999' }]}>
+            {birthDate ? birthDate.toLocaleDateString() : 'Tanggal Lahir'}
+          </Text>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.ageInput}
+          placeholder="Usia"
+          value={age ? age.toString() : ''}
+          editable={false} // Make this input readonly
+        />
+      </View>
+
       {showDatePicker && (
         <DateTimePicker
           value={birthDate || new Date(2000, 0, 1)}
@@ -179,6 +188,35 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
+  dateGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  dateInput: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#077A7D',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 50,
+  },
+  ageInput: {
+    backgroundColor: '#ffffff',
+    borderColor: '#077A7D',
+    borderWidth: 1,
+    borderRadius: 10,
+    height: 50,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    color: '#999',  
+    marginLeft: 12,
+    width: 80,
+    textAlign: 'center',
+  },
   dropdownOnly: {
     backgroundColor: '#ffffff',
     borderColor: '#077A7D',
@@ -208,3 +246,4 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
+
