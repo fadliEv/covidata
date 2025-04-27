@@ -70,12 +70,12 @@ export default function AddDataScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-      
+      <Text style={styles.label}>Nama</Text>
       <View style={styles.inputGroup}>
         <Ionicons name="person-outline" size={20} color="#34A0A4" style={styles.icon} />
         <TextInput
           style={styles.input}
-          placeholder="Nama"
+          placeholder="Masukkan nama lengkap"
           value={name}
           onChangeText={(text) => {
             setName(text);
@@ -85,11 +85,12 @@ export default function AddDataScreen({ navigation }) {
       </View>
 
       {/* Tanggal Lahir */}
+      <Text style={styles.label}>Tanggal Lahir</Text>
       <View style={styles.dateGroup}>
         <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
           <Ionicons name="calendar-outline" size={20} color="#34A0A4" style={styles.icon} />
           <Text style={[styles.input, { color: birthDate ? '#333' : '#999' }]}>
-            {birthDate ? birthDate.toLocaleDateString() : 'Tanggal Lahir'}
+            {birthDate ? birthDate.toLocaleDateString() : 'Pilih tanggal lahir'}
           </Text>
         </TouchableOpacity>
         <TextInput
@@ -112,6 +113,7 @@ export default function AddDataScreen({ navigation }) {
 
       {/* Dropdown Status */}
       <View style={{ marginBottom: open ? 160 : 20 }}>
+        <Text style={styles.label}>Status</Text>
         <DropDownPicker
           open={open}
           value={status}
@@ -119,7 +121,7 @@ export default function AddDataScreen({ navigation }) {
           setOpen={setOpen}
           setValue={setStatus}
           setItems={setItems}
-          placeholder="Pilih Status"
+          placeholder="Pilih status pasien"
           style={styles.dropdownOnly}
           dropDownContainerStyle={styles.dropdownContainer}
           placeholderStyle={{ color: '#999' }}
@@ -129,11 +131,12 @@ export default function AddDataScreen({ navigation }) {
       </View>
 
       {/* Input Lokasi */}
+      <Text style={styles.label}>Lokasi</Text>
       <View style={styles.inputGroup}>
         <Ionicons name="location-outline" size={20} color="#34A0A4" style={styles.icon} />
         <TextInput
           style={styles.input}
-          placeholder="Lokasi"
+          placeholder="Masukkan kota tempat tinggal"
           value={location}
           onChangeText={(text) => {
             setLocation(text);
@@ -244,6 +247,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#077A7D',
+    marginBottom: 6,
   },
 });
 
