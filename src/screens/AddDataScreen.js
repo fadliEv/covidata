@@ -1,10 +1,14 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { DataContext } from '../contexts/DataContext';
 
 export default function AddDataScreen({ navigation }) {
+
+  const { addData } = useContext(DataContext);
+
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -25,7 +29,16 @@ export default function AddDataScreen({ navigation }) {
       setErrorMessage('Semua field wajib diisi!');
       return;
     }
-    console.log({ name, birthDate, status, location });
+
+    const newData = {
+      id: Date.now().toString(), 
+      name,
+      age: calculateAge(birthDate),
+      status,
+      location,
+    };
+
+    addData(newData);
     navigation.goBack();
   };
 
@@ -33,6 +46,17 @@ export default function AddDataScreen({ navigation }) {
     const currentDate = selectedDate || birthDate;
     setShowDatePicker(false);
     setBirthDate(currentDate);
+  };
+
+  const calculateAge = (birthDate) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   return (
@@ -105,7 +129,7 @@ export default function AddDataScreen({ navigation }) {
       {/* Tombol Simpan */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
         <Ionicons name="save-outline" size={20} color="#fff" />
-        <Text style={styles.saveButtonText}>Simpan Data</Text>
+        <Text style={styles.saveButtonText}>Simpan</Text>
       </TouchableOpacity>
     </View>
   );

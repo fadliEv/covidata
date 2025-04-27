@@ -1,11 +1,12 @@
 import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
-import { dummyData } from '../utils/dummy';
 import DataCard from '../components/DataCard';
 import { Ionicons } from '@expo/vector-icons';
+import { useContext } from 'react';
+import { DataContext } from '../contexts/DataContext';
 
-const windowHeight = Dimensions.get('window').height;
 
 export default function HomeScreen({ navigation }) {
+  const { dataList } = useContext(DataContext);
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* HEADER STATIC */}
@@ -38,7 +39,7 @@ export default function HomeScreen({ navigation }) {
 
       {/* LIST SCROLLABLE */}
       <FlatList
-        data={dummyData}
+        data={dataList}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 16 }}>
