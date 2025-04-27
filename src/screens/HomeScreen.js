@@ -1,29 +1,28 @@
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import DataCard from '../components/DataCard';
 import { Ionicons } from '@expo/vector-icons';
-import { useContext, useEffect, useState } from 'react';
-import { DataContext } from '../contexts/DataContext';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-
 export default function HomeScreen({ navigation }) {
-//   const { dataList } = useContext(DataContext);
-
   const [dataList, setDataList] = useState([]);
+  const [loading, setLoading] = useState(true); // State untuk loading
+  
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://192.168.18.62:8080/users');                    
+      setDataList(response.data);
+      setLoading(false); 
+    } catch (error) {
+      console.error("Error Get Users", error);
+      setLoading(false); // Jika error, hentikan loading
+    }
+  };
 
-    // Fetch users from backend API
-    const fetchUsers = async () => {
-        try {
-          const response = await axios.get('http://192.168.18.62:8080/users');                    
-          setDataList(response.data);
-        } catch (error) {
-          console.error("Error Get Users" , error);
-        }
-      };
-    
-    useEffect(() => {
-        fetchUsers();
-     }, [])
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -55,22 +54,30 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      {/* LIST SCROLLABLE */}
-      <FlatList
-        data={dataList}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={{ paddingHorizontal: 16 }}>
-            <DataCard
-              item={item}
-              onPress={() => navigation.navigate('Detail', { data: item })}
-            />
-          </View>
-        )}
-        style={styles.listArea}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* LOADING INDICATOR */}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#077A7D" />
+          <Text style={styles.loadingText}>Loading data...</Text>
+        </View>
+      ) : (
+        // LIST SCROLLABLE
+        <FlatList
+          data={dataList}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={{ paddingHorizontal: 16 }}>
+              <DataCard
+                item={item}
+                onPress={() => navigation.navigate('Detail', { data: item })}
+              />
+            </View>
+          )}
+          style={styles.listArea}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -130,5 +137,15 @@ const styles = StyleSheet.create({
   },
   listArea: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#077A7D',
+    marginTop: 12,
+    fontSize: 18,
   },
 });
