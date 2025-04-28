@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 
-export default function DetailScreen({ route }) {
+export default function DetailScreen({ route,navigation }) {
   const { data } = route.params;
 
   const getStatusBadgeStyle = (status) => {
@@ -16,6 +17,31 @@ export default function DetailScreen({ route }) {
         return styles.badgeDefault;
     }
   };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Konfirmasi Hapus",
+      "Apakah Anda yakin ingin menghapus data ini?",
+      [
+        { text: "Batal", style: "cancel" },
+        { 
+          text: "Hapus", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await axios.delete(`http://192.168.18.62:8080/users/${data.id}`);
+              Alert.alert("Sukses", "Data berhasil dihapus");
+              navigation.goBack(); // Kembali ke HomeScreen setelah hapus
+            } catch (error) {
+              console.error("Error delete user", error);
+              Alert.alert("Error", "Gagal menghapus data");
+            }
+          } 
+        }
+      ]
+    );
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -49,6 +75,16 @@ export default function DetailScreen({ route }) {
           Informasi ini digunakan untuk pemantauan dan upaya penanganan masyarakat yang terdampak COVID-19.
         </Text>
       </View>
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('AddData', { data, mode: 'edit' })}>
+            <Ionicons name="create-outline" size={20} color="#ffffff" />
+            <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={20} color="#ffffff" />
+            <Text style={styles.buttonText}>Hapus</Text>
+        </TouchableOpacity>
+        </View>
     </View>
   );
 }

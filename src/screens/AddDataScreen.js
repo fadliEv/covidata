@@ -1,11 +1,12 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform, Alert } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
 
-export default function AddDataScreen({ navigation }) {
+export default function AddDataScreen({ navigation,route  }) {
+  const { data, mode } = route.params || {};
 
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState(null);
@@ -24,25 +25,32 @@ export default function AddDataScreen({ navigation }) {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!name || !birthDate || !status || !location) {
+    if (!name || !status || !location || (!birthDate && mode !== 'edit')) {
       setErrorMessage('Semua field wajib diisi!');
       return;
     }
-
+  
     const newData = {
       name,
       age,
       status,
       location,
     };
-
+  
     try {
-      const response = await axios.post('http://192.168.18.62:8080/users', newData);
-      Alert.alert('Success', 'User created successfully');
-      navigation.goBack(); // Go back to previous screen after success
+      if (mode === 'edit' && data?.id) {
+        // Kalau edit, PUT request
+        await axios.put('http://192.168.18.62:8080/users', { id: data.id, ...newData });
+        Alert.alert('Success', 'Data berhasil diperbarui');
+      } else {
+        // Kalau tambah baru, POST request
+        await axios.post('http://192.168.18.62:8080/users', newData);
+        Alert.alert('Success', 'Data berhasil ditambahkan');
+      }
+      navigation.navigate('Home');
     } catch (error) {
-      console.error('Error creating user:', error);
-      Alert.alert('Error', 'Failed to create user. Please try again.');
+      console.error('Error saving user:', error);
+      Alert.alert('Error', 'Gagal menyimpan data. Coba lagi.');
     }
   };
 
@@ -67,15 +75,25 @@ export default function AddDataScreen({ navigation }) {
     calculateAge(currentDate); 
   };
 
+  useEffect(() => {
+    if (mode === 'edit' && data) {
+      setName(data.name);
+      setAge(data.age);
+      setLocation(data.location);
+      setStatus(data.status);
+      // Tanggal lahir tidak bisa dibalik dari umur, biarkan kosong saja
+    }
+  }, [data, mode]);
+
   return (
     <View style={styles.container}>
       {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-      
+      <Text style={styles.label}>Nama</Text>
       <View style={styles.inputGroup}>
         <Ionicons name="person-outline" size={20} color="#34A0A4" style={styles.icon} />
         <TextInput
           style={styles.input}
-          placeholder="Nama"
+          placeholder="Masukkan nama lengkap"
           value={name}
           onChangeText={(text) => {
             setName(text);
@@ -85,11 +103,12 @@ export default function AddDataScreen({ navigation }) {
       </View>
 
       {/* Tanggal Lahir */}
+      <Text style={styles.label}>Tanggal Lahir</Text>
       <View style={styles.dateGroup}>
         <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
           <Ionicons name="calendar-outline" size={20} color="#34A0A4" style={styles.icon} />
           <Text style={[styles.input, { color: birthDate ? '#333' : '#999' }]}>
-            {birthDate ? birthDate.toLocaleDateString() : 'Tanggal Lahir'}
+            {birthDate ? birthDate.toLocaleDateString() : 'Pilih tanggal lahir'}
           </Text>
         </TouchableOpacity>
         <TextInput
@@ -112,6 +131,7 @@ export default function AddDataScreen({ navigation }) {
 
       {/* Dropdown Status */}
       <View style={{ marginBottom: open ? 160 : 20 }}>
+        <Text style={styles.label}>Status</Text>
         <DropDownPicker
           open={open}
           value={status}
@@ -119,7 +139,7 @@ export default function AddDataScreen({ navigation }) {
           setOpen={setOpen}
           setValue={setStatus}
           setItems={setItems}
-          placeholder="Pilih Status"
+          placeholder="Pilih status pasien"
           style={styles.dropdownOnly}
           dropDownContainerStyle={styles.dropdownContainer}
           placeholderStyle={{ color: '#999' }}
@@ -129,11 +149,12 @@ export default function AddDataScreen({ navigation }) {
       </View>
 
       {/* Input Lokasi */}
+      <Text style={styles.label}>Lokasi</Text>
       <View style={styles.inputGroup}>
         <Ionicons name="location-outline" size={20} color="#34A0A4" style={styles.icon} />
         <TextInput
           style={styles.input}
-          placeholder="Lokasi"
+          placeholder="Masukkan kota tempat tinggal"
           value={location}
           onChangeText={(text) => {
             setLocation(text);
@@ -244,6 +265,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#077A7D',
+    marginBottom: 6,
   },
 });
 

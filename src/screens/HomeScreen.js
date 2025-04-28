@@ -1,7 +1,8 @@
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Image } from 'react-native';
 import DataCard from '../components/DataCard';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 
 export default function HomeScreen({ navigation }) {
@@ -31,17 +32,25 @@ export default function HomeScreen({ navigation }) {
     }, 700); 
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+//   useEffect(() => {
+//     fetchUsers();
+//   }, []);
+
+useFocusEffect(
+   React.useCallback(() => {
+     fetchUsers();
+   }, [])
+ );
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* HEADER STATIC */}
       <View style={styles.headerContainer}>
         <View style={styles.header}>
-          <Ionicons name="shield-checkmark-outline" size={48} color="#077A7D" />
-          <Text style={styles.title}>Covidata</Text>
+        <Image
+            source={require('../../assets/covid-logo.png')}
+            style={styles.logo}
+        />          
           <Text style={styles.subtitle}>
             Pendataan masyarakat terdampak COVID-19
           </Text>
@@ -160,5 +169,11 @@ const styles = StyleSheet.create({
     color: '#077A7D',
     marginTop: 12,
     fontSize: 18,
+  },
+  logo: {
+    width: 110,
+    height: 110,
+    resizeMode: 'contain',
+    marginBottom: 8,
   },
 });
